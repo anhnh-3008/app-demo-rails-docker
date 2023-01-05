@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: app
+    image: app_dev
+    build: .
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+      - .env.docker
+    command: /scripts/start_app.sh
+    networks:
+      - internal
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: on-failure
+    env_file:
+      - .env
+      - .env.docker
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD:${DATABASE_PASSWORD}
+      - MYSQL_USER:${DATABASE_USERNAME}
+      - MYSQL_PASSWORD:${DATABASE_PASSWORD}
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    networks:
+      - internal
+
+  redis:
+    image: redis:5.0.3
+    container_name: redis
+    ports:
+      - 6379:6379
+    env_file:
+      - .env
+      - .env.docker
+    command: ["bash", "-c", "docker-entrypoint.sh --requirepass $${REDIS_PASSWORD}"]
+    networks:
+      - internal
+
+  sidekiq:
+    image: app_dev
+    container_name: sidekiq
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    env_file:
+      - .env
+      - .env.docker
+    command: bundle exec sidekiq
+    networks:
+      - internal
+
+networks:
+  internal:
+    name: internal
+    driver: bridge
+
+volumes:
+  bundle_cache:
+  mysql_data:
