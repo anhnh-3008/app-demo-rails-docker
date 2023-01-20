@@ -1,10 +1,39 @@
-version: 2
+version: 2.1
+
+workflows:
+  test-deploy:
+    jobs:
+      - test
+
 jobs:
-  build:
+  test:
     docker:
-      - image: circleci/ruby:3.1
+      - image: cimg/ruby:3.1.2
+        environment:
+          RAILS_ENV: test
+          DATABASE_HOST: 127.0.0.1
+          DATABASE_USERNAME: root
+          DATABASE_PASSWORD: ''
+          DATABASE_NAME: rails_app_demo_test
+      - image: cimg/mysql:5.7
+        command: [ --default-authentication-plugin=mysql_native_password ]
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+          MYSQL_ROOT_PASSWORD: ''
+
     steps:
       - checkout
-      - run: bundle install
-      - run: bundle exec rake db:create db:migrate
-      - run: bundle exec rspec
+      - run:
+          name: Install dependencies
+          command: bundle install
+      - run:
+          name: Database Setup
+          command: |
+            bundle exec rails db:create
+            bundle exec rails db:migrate
+      - run:
+          name: Run Test
+          command: bundle exec rspec
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
