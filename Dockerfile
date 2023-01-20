@@ -23,6 +23,9 @@ WORKDIR $APP_DIR
 # Copy the main application
 COPY . $APP_DIR
 
+# Install require dependencies
+RUN gem install bundler -v 2.3.12
+
 # Make entrypoint.sh
 COPY docker/*.sh /scripts/
 RUN chmod a+x /scripts/*.sh

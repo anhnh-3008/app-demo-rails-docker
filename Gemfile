@@ -16,10 +16,14 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'psych', '< 4'
 gem 'config'
 gem 'dotenv-rails', require: 'dotenv/rails-now'
+gem 'rubocop', require: false
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails', '~> 6.0.0'
+  gem 'factory_bot_rails'
+  gem 'ffaker'
+  gem 'pry'
 end
 
 group :development do
@@ -29,7 +33,7 @@ group :development do
 end
 
 group :test do
-  gem 'capybara', '>= 2.15'
-  gem 'selenium-webdriver'
-  gem 'webdrivers'
+  gem 'database_cleaner'
+  gem 'shoulda-matchers'
+  gem 'simplecov', require: false
 end
